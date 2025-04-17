@@ -61,8 +61,7 @@ public class MessageService {
      * @return message fetched by ID
      */
     public Optional<Message> getMessageById(String idParam){
-        // return messageDAO.getMessageById(id);
-
+        
         Integer id;
         try{
             id = Integer.parseInt(idParam);
