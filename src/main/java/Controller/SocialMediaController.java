@@ -37,7 +37,7 @@ public class SocialMediaController {
     }
 
     private void registerHandler(Context context){
-        
+        context.json('')
     }
 
 
