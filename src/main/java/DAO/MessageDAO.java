@@ -17,6 +17,12 @@ import java.util.Optional;
  */
 public class MessageDAO {
     
+
+    /**
+     * create new message
+     * @param message
+     * @return new message
+     */
     public Optional<Message> createMessage(Message message){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -38,11 +44,15 @@ public class MessageDAO {
         return Optional.empty();
     }
 
+    /**
+     * retrieve all messages
+     * @param 
+     * @return new all messages
+     */
     public List<Message> getAllMessages(){
         Connection connection = ConnectionUtil.getConnection();
         List<Message> messages = new ArrayList<>();
         try {
-            //Write SQL logic here
             String sql = "select * from message";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             ResultSet rs = preparedStatement.executeQuery();
@@ -59,6 +69,11 @@ public class MessageDAO {
         return messages;
     }
 
+    /**
+     * get messages by message ID
+     * @param id
+     * @return messages
+     */
     public Optional<Message> getMessageById(int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -80,7 +95,11 @@ public class MessageDAO {
         return Optional.empty();
     }
 
-
+    /**
+     * delete message by ID
+     * @param id
+     * @return deleted message
+     */
     public Optional<Message> deleteMessageById(int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -114,6 +133,12 @@ public class MessageDAO {
         return Optional.empty();
     }
 
+    /**
+     * update message text
+     * @param message
+     * @param id
+     * @return updated message
+     */
     public Optional<Message> updateMessageText(Message message, int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -146,11 +171,15 @@ public class MessageDAO {
         return Optional.empty();
     }
 
+    /**
+     * get messages by account ID
+     * @param id
+     * @return messages
+     */
     public List<Message> getAllMessagesByAccountId(int id){
         Connection connection = ConnectionUtil.getConnection();
         List<Message> messages = new ArrayList<>();
         try {
-            //Write SQL logic here
             String sql = "select * from message where posted_by = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, id);

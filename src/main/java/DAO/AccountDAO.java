@@ -60,7 +60,7 @@ public class AccountDAO {
 
     /**
      * check if account exists by account ID
-     * @param accountID 
+     * @param account_id
      * @return ID of existed account
      */
     public boolean checkAccountExists(int account_id){
