@@ -15,6 +15,25 @@ public class AccountService {
     }
 
     public Account register(Account account){
+        if(account.getUsername().length() == 0
+        || account.getPassword().length() < 4){
+            context.status(400);
+        }else{
+            String username = accountService.checkAccountExists(account);
+            if(username != null){
+                context.status(400);
+                return ;
+            }
+            Account insertedAccount = accountService.insertAccount(account);
+            if(insertedAccount == null){
+                context.status(400);
+            }else{
+                context.status(200).json(insertedAccount);
+            }
+        }
+    }
+
+    public Account registerUser(Account account){
         return accountDAO.insertAccount(account);
     }
 
