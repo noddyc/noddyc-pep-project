@@ -1,5 +1,10 @@
 package Controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import Model.Account;
+import Service.AccountService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -9,6 +14,8 @@ import io.javalin.http.Context;
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
 public class SocialMediaController {
+
+    AccountService accountService = new AccountService();
     /**
      * In order for the test cases to work, you will need to write the endpoints in the startAPI() method, as the test
      * suite must receive a Javalin object from this method.
@@ -17,7 +24,7 @@ public class SocialMediaController {
     public Javalin startAPI() {
         Javalin app = Javalin.create();
         app.get("example-endpoint", this::exampleHandler);
-        app.post("register", xxx);
+        app.post("register", this::registerHandler);
         // app.post("login", xxx);
         // app.post("messages", xxx);
         // app.get("messages/id", xxx);
@@ -36,8 +43,24 @@ public class SocialMediaController {
         context.json("sample text");
     }
 
-    private void registerHandler(Context context){
-        context.json('')
+    private void registerHandler(Context context) throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Account account = mapper.readValue(context.body(), Account.class);
+        if(account.getUsername().length() == 0
+        || account.getPassword().length() < 4){
+            context.status(400);
+        }else{
+            String username = accountService.checkAccountExists(account);
+            if(username != null){
+                context.status(400);
+            }
+            Account insertedAccount = accountService.insertAccount(account);
+            if(insertedAccount == null){
+                context.status(400);
+            }else{
+                context.status(200).json(insertedAccount);
+            }
+        }
     }
 
 

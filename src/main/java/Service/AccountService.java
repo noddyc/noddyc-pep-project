@@ -17,4 +17,12 @@ public class AccountService {
     public Account register(Account account){
         return accountDAO.insertAccount(account);
     }
+
+    public String checkAccountExists(Account account){
+        return accountDAO.checkAccountExists(account);
+    }
+
+    public Account insertAccount(Account account){
+        return accountDAO.insertAccount(account);
+    }
 }
