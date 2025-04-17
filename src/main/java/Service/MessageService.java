@@ -40,11 +40,7 @@ public class MessageService {
             return Optional.empty();
         }else{
             Optional<Message> createdMessage = messageDAO.createMessage(message);
-            if(createdMessage != null){
-                return createdMessage;
-            }else{
-                return Optional.empty();
-            }
+            return createdMessage;
         }
     }
 
@@ -64,22 +60,18 @@ public class MessageService {
      * @param message
      * @return message fetched by ID
      */
-    public Message getMessageById(String idParam){
+    public Optional<Message> getMessageById(String idParam){
         // return messageDAO.getMessageById(id);
 
         Integer id;
         try{
             id = Integer.parseInt(idParam);
         }catch (NumberFormatException e) {
-            return null;
+            return Optional.empty();
         }
 
-        Message message = messageDAO.getMessageById(id);
-        if(message == null){
-            return null;
-        }else{
-            return message;
-        }
+        Optional<Message> message = messageDAO.getMessageById(id);
+        return message;
     }
 
     /**
@@ -87,22 +79,16 @@ public class MessageService {
      * @param idParam
      * @return message deleted
      */
-    public Message deleteMessageById(String idParam){
+    public Optional<Message> deleteMessageById(String idParam){
         Integer id;
         try{
             id = Integer.parseInt(idParam);
         }catch (NumberFormatException e) {
-            return null;
+            return Optional.empty();
         }
 
-        Message message = messageDAO.deleteMessageById(id);
-
-        if(message == null){
-            return null;
-        }else{
-            return message;
-        }
-        // return messageDAO.deleteMessageById(id);
+        Optional<Message> message = messageDAO.deleteMessageById(id);
+        return message;
     }
 
     /**
@@ -111,31 +97,26 @@ public class MessageService {
      * @param idParam the ID of the message to be updated
      * @return message updated
      */
-    public Message updateMessageText(Message message, String idParam){
+    public Optional<Message> updateMessageText(Message message, String idParam){
 
         Integer id;
         try{
             id = Integer.parseInt(idParam);
         }catch (NumberFormatException e) {
-            return null;
+            return Optional.empty();
         }
         if(message.getMessage_text().length() == 0 || 
         message.getMessage_text().length() > 255){
-            return null;
+            return Optional.empty();
         }
 
         if(messageDAO.getMessageById(id) == null){
-            return null;
+            return Optional.empty();
         }
 
-        Message deletedMessage = messageDAO.updateMessageText(message, id);
+        Optional<Message> deletedMessage = messageDAO.updateMessageText(message, id);
 
-        if(deletedMessage == null){
-            return null;
-        }else{
-            return deletedMessage;
-        }
-        // return messageDAO.updateMessageText(message, id);
+        return deletedMessage;
     }
 
     /**

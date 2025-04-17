@@ -33,20 +33,9 @@ public class AccountService {
                 return Optional.empty();
             }
             Optional<Account> insertedAccount = accountDAO.registerAccount(account);
-            System.out.println("ok");
-            System.out.println(insertedAccount);
             return insertedAccount;
         }
     }
-
-    // /**
-    //  * method to check if account exists before registration
-    //  * @param account
-    //  * @return account existed or not
-    //  */
-    // public boolean checkAccountExists(Account account){
-    //     return accountDAO.checkAccountExists(account);
-    // }
 
     /**
      * method to login

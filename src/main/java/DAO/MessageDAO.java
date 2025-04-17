@@ -17,22 +17,6 @@ import java.util.Optional;
  */
 public class MessageDAO {
     
-    // public boolean checkAccountExists(int id){
-    //     Connection connection = ConnectionUtil.getConnection();
-    //     try{
-    //         String sql = "select * from Account where account_id = ?";
-    //         PreparedStatement preparedStatement = connection.prepareStatement(sql);
-    //         preparedStatement.setInt(1, id);
-    //         ResultSet rs = preparedStatement.executeQuery();
-    //         while(rs.next()){
-    //             return true;
-    //         }
-    //     }catch(SQLException e){
-    //         System.out.println(e.getMessage());
-    //     }
-    //     return false;
-    // }
-
     public Optional<Message> createMessage(Message message){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -75,29 +59,29 @@ public class MessageDAO {
         return messages;
     }
 
-    public Message getMessageById(int id){
+    public Optional<Message> getMessageById(int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
             String sql = "select * from Message where message_id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, id);
             ResultSet rs = preparedStatement.executeQuery();
-            if(rs.next()){
-                return new Message(
+            while(rs.next()){
+                return Optional.of(new Message(
                     rs.getInt("message_id"),
                     rs.getInt("posted_by"),
                     rs.getString("message_text"),
                     rs.getLong("time_posted_epoch")
-                );
+                ));
             }
         }catch(SQLException e){
             System.out.println(e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
 
-    public Message deleteMessageById(int id){
+    public Optional<Message> deleteMessageById(int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
             String sqlFetch = "Select * from Message where message_id = ?";
@@ -114,7 +98,7 @@ public class MessageDAO {
                 );
             }
             if(messageOnDeleted == null){
-                return null;
+                return Optional.empty();
             }
 
             String sqlDelete = "Delete from Message where message_id = ?";
@@ -122,15 +106,15 @@ public class MessageDAO {
             deleteStatement.setInt(1, id);
             int rowsEffected = deleteStatement.executeUpdate();
             if(rowsEffected > 0){
-                return messageOnDeleted;
+                return Optional.of(messageOnDeleted);
             }
         }catch(SQLException e){
             System.out.println(e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
-    public Message updateMessageText(Message message, int id){
+    public Optional<Message> updateMessageText(Message message, int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
             String sqlUpdate= "update Message SET message_text = ? WHERE message_id = ?";
@@ -147,21 +131,19 @@ public class MessageDAO {
                 selectStatement.setInt(1, generated_account_id);
                 ResultSet rs = selectStatement.executeQuery();
                 while(rs.next()){
-                    Message msg = new Message(rs.getInt("message_id"),
+                    return Optional.of(new Message(rs.getInt("message_id"),
                             rs.getInt("posted_by"),
                             rs.getString("message_text"),
-                            rs.getLong("time_posted_epoch"));
-
-                    return msg;
+                            rs.getLong("time_posted_epoch")));
                 }
 
             }else{
-                return null;
+                return Optional.empty();
             }
         }catch(SQLException e){
             System.out.println(e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     public List<Message> getAllMessagesByAccountId(int id){
