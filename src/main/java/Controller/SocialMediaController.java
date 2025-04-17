@@ -60,21 +60,11 @@ public class SocialMediaController {
     private void registerHandler(Context context) throws JsonMappingException,  JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
-        if(account.getUsername().length() == 0
-        || account.getPassword().length() < 4){
+        Account processedAccount = accountService.register(account);
+        if(processedAccount == null){
             context.status(400);
         }else{
-            String username = accountService.checkAccountExists(account);
-            if(username != null){
-                context.status(400);
-                return ;
-            }
-            Account insertedAccount = accountService.insertAccount(account);
-            if(insertedAccount == null){
-                context.status(400);
-            }else{
-                context.status(200).json(insertedAccount);
-            }
+            context.status(200).json(processedAccount);
         }
     }
 
@@ -86,10 +76,10 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
         Account matchedAccount = accountService.logIn(account);
-        if(matchedAccount != null){
-            context.status(200).json(matchedAccount);
-        }else{
+        if(matchedAccount == null){
             context.status(401);
+        }else{
+            context.status(200).json(matchedAccount);
         }
     }
 
@@ -101,22 +91,22 @@ public class SocialMediaController {
     private void createMessageHandler(Context context) throws JsonMappingException, JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(context.body(), Message.class);
-        if(message.getMessage_text().length() == 0 || message.getMessage_text().length() > 255){
-            context.status(400);
-            return ;
-        }
-        boolean accountExists = messageService.checkAccountExists(message.getPosted_by());
-        if(!accountExists){
-            context.status(400);
-        }else{
-            Message createdMessage = messageService.createMessage(message);
-            if(createdMessage != null){
-                context.status(200).json(createdMessage);
-            }else{
-                context.status(400);
-            }
+        // if(message.getMessage_text().length() == 0 || message.getMessage_text().length() > 255){
+        //     context.status(400);
+        //     return ;
+        // }
+        // boolean accountExists = messageService.checkAccountExists(message.getPosted_by());
+        // if(!accountExists){
+        //     context.status(400);
+        // }else{
+        //     Message createdMessage = messageService.createMessage(message);
+        //     if(createdMessage != null){
+        //         context.status(200).json(createdMessage);
+        //     }else{
+        //         context.status(400);
+        //     }
   
-        }
+        // }
     }
 
     /**

@@ -4,14 +4,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.sql.Statement;
-
 import Model.Message;
 import Util.ConnectionUtil;
 import java.util.List;
 import java.util.ArrayList;
 
+
+/**
+ * DAO class to interact with Message table
+ */
 public class MessageDAO {
     
     public boolean checkAccountExists(int id){

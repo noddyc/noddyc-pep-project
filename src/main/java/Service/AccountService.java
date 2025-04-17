@@ -17,34 +17,45 @@ public class AccountService {
     public Account register(Account account){
         if(account.getUsername().length() == 0
         || account.getPassword().length() < 4){
-            context.status(400);
+            return null;
         }else{
-            String username = accountService.checkAccountExists(account);
+            String username = checkAccountExists(account);
             if(username != null){
-                context.status(400);
-                return ;
+                return null;
             }
-            Account insertedAccount = accountService.insertAccount(account);
+            Account insertedAccount = registerAccount(account);
             if(insertedAccount == null){
-                context.status(400);
+                return null;
             }else{
-                context.status(200).json(insertedAccount);
+                return insertedAccount;
             }
         }
     }
 
-    public Account registerUser(Account account){
-        return accountDAO.insertAccount(account);
-    }
-
+    /**
+     * method to check if account exists before registration
+     * @param account
+     * @return ID of existed account
+     */
     public String checkAccountExists(Account account){
         return accountDAO.checkAccountExists(account);
     }
 
-    public Account insertAccount(Account account){
-        return accountDAO.insertAccount(account);
+    /**
+     * method to register new account
+     * @param account
+     * @return new account 
+     */
+    public Account registerAccount(Account account){
+        return accountDAO.registerAccount(account);
     }
 
+
+    /**
+     * method to login
+     * @param account
+     * @return authenticated account
+     */
     public Account logIn(Account account){
         return accountDAO.logIn(account);
     }

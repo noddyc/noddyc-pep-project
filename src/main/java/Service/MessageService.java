@@ -19,8 +19,26 @@ public class MessageService {
         return messageDAO.checkAccountExists(id);
     }
     
+    /**
+     * method to create new message for existed user
+     * @param message
+     * @return new message
+     */
     public Message createMessage(Message message){
-        return messageDAO.createMessage(message);
+        if(message.getMessage_text().length() == 0 || message.getMessage_text().length() > 255){
+            return null;
+        }
+        boolean accountExists = checkAccountExists(message.getPosted_by());
+        if(!accountExists){
+            return null;
+        }else{
+            Message createdMessage = createMessage(message);
+            if(createdMessage == null){
+                return null;
+            }else{
+                return createdMessage;
+            }
+        }
     }
 
     public List<Message> getAllMessages(){

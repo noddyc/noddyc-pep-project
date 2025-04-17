@@ -6,13 +6,20 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
-
 import Model.Account;
 import Util.ConnectionUtil;
 
+/**
+ * DAO class to interact with Account table
+ */
 public class AccountDAO {
     
-    public Account insertAccount(Account account){
+    /**
+     * register new account
+     * @param account
+     * @return new account
+     */
+    public Account registerAccount(Account account){
         Connection connection = ConnectionUtil.getConnection();
         try{
             String sql = "insert into Account (username, password) values (?, ?)";
@@ -31,6 +38,11 @@ public class AccountDAO {
         return null;
     }
 
+    /**
+     * check if old account existed before registration
+     * @param account
+     * @return ID of existed account
+     */
     public String checkAccountExists(Account account){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -47,6 +59,12 @@ public class AccountDAO {
         return null;
     }
 
+
+    /**
+     * authentication for login
+     * @param account
+     * @return authenticated account
+     */
     public Account logIn(Account account){
         Connection connection = ConnectionUtil.getConnection();
         try{
