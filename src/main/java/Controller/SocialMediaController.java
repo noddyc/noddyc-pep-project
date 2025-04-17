@@ -1,10 +1,13 @@
 package Controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Model.Account;
+import Model.Message;
 import Service.AccountService;
+import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -16,6 +19,7 @@ import io.javalin.http.Context;
 public class SocialMediaController {
 
     AccountService accountService = new AccountService();
+    MessageService messageService = new MessageService();
     /**
      * In order for the test cases to work, you will need to write the endpoints in the startAPI() method, as the test
      * suite must receive a Javalin object from this method.
@@ -25,8 +29,9 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.get("example-endpoint", this::exampleHandler);
         app.post("register", this::registerHandler);
-        // app.post("login", xxx);
-        // app.post("messages", xxx);
+        app.post("login", this::loginHandler);
+        app.post("messages", this::createMessageHandler);
+        app.get("messages", this::getAllMessageHandler);
         // app.get("messages/id", xxx);
         // app.delete("messages/id", xxx);
         // app.patch("messages/id", xxx);
@@ -43,7 +48,7 @@ public class SocialMediaController {
         context.json("sample text");
     }
 
-    private void registerHandler(Context context) throws JsonProcessingException{
+    private void registerHandler(Context context) throws JsonMappingException,  JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
         if(account.getUsername().length() == 0
@@ -53,6 +58,7 @@ public class SocialMediaController {
             String username = accountService.checkAccountExists(account);
             if(username != null){
                 context.status(400);
+                return ;
             }
             Account insertedAccount = accountService.insertAccount(account);
             if(insertedAccount == null){
@@ -63,26 +69,47 @@ public class SocialMediaController {
         }
     }
 
+    private void loginHandler(Context context) throws JsonMappingException, JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Account account = mapper.readValue(context.body(), Account.class);
+        Account matchedAccount = accountService.logIn(account);
+        if(matchedAccount != null){
+            context.status(200).json(matchedAccount);
+        }else{
+            context.status(401);
+        }
+    }
+
+    private void createMessageHandler(Context context) throws JsonMappingException, JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(context.body(), Message.class);
+        if(message.getMessage_text().length() == 0 || message.getMessage_text().length() > 255){
+            System.out.println(message.getMessage_text().length());
+            context.status(400);
+            return ;
+        }
+        boolean accountExists = messageService.checkAccountExists(message.getPosted_by());
+        if(!accountExists){
+            context.status(400);
+        }else{
+            Message createdMessage = messageService.createMessage(message);
+            if(createdMessage != null){
+                context.status(200).json(createdMessage);
+            }else{
+                context.status(400);
+            }
+  
+        }
+    }
+
+    private void getAllMessageHandler(Context context) throws JsonMappingException, JsonProcessingException{
+
+    }
 
 }
 
 
 // # Requirements
-
-// ## 1: Our API should be able to process new User registrations.
-
-// As a user, I should be able to create a new Account on the endpoint POST localhost:8080/register. The body will contain a representation of a JSON Account, but will not contain an account_id.
-
-// - The registration will be successful if and only if the username is not blank, the password is at least 4 characters long, and an Account with that username does not already exist. If all these conditions are met, the response body should contain a JSON of the Account, including its account_id. The response status should be 200 OK, which is the default. The new account should be persisted to the database.
-// - If the registration is not successful, the response status should be 400. (Client error)
-
-// ## 2: Our API should be able to process User logins.
-
-// As a user, I should be able to verify my login on the endpoint POST localhost:8080/login. The request body will contain a JSON representation of an Account, not containing an account_id. In the future, this action may generate a Session token to allow the user to securely use the site. We will not worry about this for now.
-
-// - The login will be successful if and only if the username and password provided in the request body JSON match a real account existing on the database. If successful, the response body should contain a JSON of the account in the response body, including its account_id. The response status should be 200 OK, which is the default.
-// - If the login is not successful, the response status should be 401. (Unauthorized)
-
 
 // ## 3: Our API should be able to process the creation of new messages.
 
