@@ -91,22 +91,12 @@ public class SocialMediaController {
     private void createMessageHandler(Context context) throws JsonMappingException, JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(context.body(), Message.class);
-        // if(message.getMessage_text().length() == 0 || message.getMessage_text().length() > 255){
-        //     context.status(400);
-        //     return ;
-        // }
-        // boolean accountExists = messageService.checkAccountExists(message.getPosted_by());
-        // if(!accountExists){
-        //     context.status(400);
-        // }else{
-        //     Message createdMessage = messageService.createMessage(message);
-        //     if(createdMessage != null){
-        //         context.status(200).json(createdMessage);
-        //     }else{
-        //         context.status(400);
-        //     }
-  
-        // }
+        Message createdMessage = messageService.createMessage(message);
+        if(createdMessage == null){
+            context.status(400);
+        }else{
+            context.status(200).json(createdMessage);
+        }
     }
 
     /**
@@ -124,21 +114,27 @@ public class SocialMediaController {
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      */
     private void getMessageByIdHandler(Context context){
-        String idParam = context.pathParam("message_id");
-        Integer id;
-        try{
-            id = Integer.parseInt(idParam);
-        }catch (NumberFormatException e) {
-            context.status(200);
-            return ;
-        }
-
-        Message message = messageService.getMessageById(id);
-        if(message == null){
+        // String idParam = context.pathParam("message_id");
+        Message messageByID = messageService.getMessageById(context.pathParam("message_id"));
+        if(messageByID == null){
             context.status(200);
         }else{
-            context.status(200).json(message);
+            context.status(200).json(messageByID);
         }
+        // Integer id;
+        // try{
+        //     id = Integer.parseInt(idParam);
+        // }catch (NumberFormatException e) {
+        //     context.status(200);
+        //     return ;
+        // }
+
+        // Message message = messageService.getMessageById(id);
+        // if(message == null){
+        //     context.status(200);
+        // }else{
+        //     context.status(200).json(message);
+        // }
     }
 
     /**
@@ -146,24 +142,30 @@ public class SocialMediaController {
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      */
     private void deleteMessageByIdHandler(Context context){
-        String idParam = context.pathParam("message_id");
-        Integer id;
-        try{
-            id = Integer.parseInt(idParam);
-        }catch (NumberFormatException e) {
-            context.status(200);
-            return ;
-        }
-
-        System.out.println(id);
-
-        Message message = messageService.deleteMessageById(id);
-
-        if(message == null){
+        Message deletedMessage = messageService.deleteMessageById(context.pathParam("message_id"));
+        if(deletedMessage == null){
             context.status(200);
         }else{
-            context.status(200).json(message);
+            context.status(200).json(deletedMessage);
         }
+        // String idParam = context.pathParam("message_id");
+        // Integer id;
+        // try{
+        //     id = Integer.parseInt(idParam);
+        // }catch (NumberFormatException e) {
+        //     context.status(200);
+        //     return ;
+        // }
+
+        // System.out.println(id);
+
+        // Message message = messageService.deleteMessageById(id);
+
+        // if(message == null){
+        //     context.status(200);
+        // }else{
+        //     context.status(200).json(message);
+        // }
     }
 
     /**
@@ -174,34 +176,40 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(context.body(), Message.class);
         String idParam = context.pathParam("message_id");
-        Integer id;
-        try{
-            id = Integer.parseInt(idParam);
-        }catch (NumberFormatException e) {
-
-            context.status(400);
-            return ;
-        }
-        if(message.getMessage_text().length() == 0 || 
-        message.getMessage_text().length() > 255){
-    
-            context.status(400);
-            return ;
-        }
-
-
-        if(messageService.getMessageById(id) == null){
-            context.status(400);
-            return ;
-        }
-
-        Message deletedMessage = messageService.updateMessageText(message, id);
-
-        if(deletedMessage == null){
+        Message updatedMessage = messageService.updateMessageText(message, idParam);
+        if(updatedMessage == null){
             context.status(400);
         }else{
-            context.status(200).json(deletedMessage);
+            context.status(200).json(updatedMessage);
         }
+        // Integer id;
+        // try{
+        //     id = Integer.parseInt(idParam);
+        // }catch (NumberFormatException e) {
+
+        //     context.status(400);
+        //     return ;
+        // }
+        // if(message.getMessage_text().length() == 0 || 
+        // message.getMessage_text().length() > 255){
+    
+        //     context.status(400);
+        //     return ;
+        // }
+
+
+        // if(messageService.getMessageById(id) == null){
+        //     context.status(400);
+        //     return ;
+        // }
+
+        // Message deletedMessage = messageService.updateMessageText(message, id);
+
+        // if(deletedMessage == null){
+        //     context.status(400);
+        // }else{
+        //     context.status(200).json(deletedMessage);
+        // }
     }
 
     /**
