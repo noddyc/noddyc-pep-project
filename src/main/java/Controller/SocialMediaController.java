@@ -1,5 +1,8 @@
 package Controller;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +13,7 @@ import Service.AccountService;
 import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -31,11 +35,11 @@ public class SocialMediaController {
         app.post("register", this::registerHandler);
         app.post("login", this::loginHandler);
         app.post("messages", this::createMessageHandler);
+        app.get("messages/{message_id}", this::getMessageByIdHandler);
         app.get("messages", this::getAllMessageHandler);
-        // app.get("messages/id", xxx);
-        // app.delete("messages/id", xxx);
-        // app.patch("messages/id", xxx);
-        // app.get("accounts/{account_id}",xxx);
+        app.delete("messages/{message_id}", this::deleteMessageByIdHandler);
+        app.patch("messages/{message_id}", this::updateMessageTextHandler);
+        app.get("accounts/{account_id}/messages",this::getAllMessagesByAccountIdHandler);
 
         return app;
     }
@@ -84,7 +88,6 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(context.body(), Message.class);
         if(message.getMessage_text().length() == 0 || message.getMessage_text().length() > 255){
-            System.out.println(message.getMessage_text().length());
             context.status(400);
             return ;
         }
@@ -102,10 +105,107 @@ public class SocialMediaController {
         }
     }
 
-    private void getAllMessageHandler(Context context) throws JsonMappingException, JsonProcessingException{
-
+    private void getAllMessageHandler(Context context){
+        List<Message> messages = messageService.getAllMessages();
+        context.status(200).json(messages);
     }
 
+    private void getMessageByIdHandler(Context context){
+        String idParam = context.pathParam("message_id");
+        Integer id;
+        try{
+            id = Integer.parseInt(idParam);
+        }catch (NumberFormatException e) {
+            context.status(200);
+            return ;
+        }
+
+        Message message = messageService.getMessageById(id);
+        if(message == null){
+            context.status(200);
+        }else{
+            context.status(200).json(message);
+        }
+    }
+
+    private void deleteMessageByIdHandler(Context context){
+        String idParam = context.pathParam("message_id");
+        Integer id;
+        try{
+            id = Integer.parseInt(idParam);
+        }catch (NumberFormatException e) {
+            context.status(200);
+            return ;
+        }
+
+        System.out.println(id);
+
+        Message message = messageService.deleteMessageById(id);
+
+        if(message == null){
+            context.status(200);
+        }else{
+            context.status(200).json(message);
+        }
+    }
+
+    public void getAllMessagesByAccountIdHandler(Context context){
+        List<Message> messages = new ArrayList<>();
+        String idParam = context.pathParam("account_id");
+        Integer id;
+        try{
+            id = Integer.parseInt(idParam);
+        }catch (NumberFormatException e) {
+            context.status(200);
+            return ;
+        }
+
+        if(!messageService.checkAccountExists(id)){
+            context.status(200).json(messages);
+            return;
+        }
+
+        messages = messageService.getAllMessagesByAccountId(id);
+        if(messages.size() == 0){
+            context.status(200).json(messages);
+        }else{
+            context.status(200).json(messages);
+        }
+    }
+
+    public void updateMessageTextHandler(Context context) throws JsonMappingException, JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(context.body(), Message.class);
+        String idParam = context.pathParam("message_id");
+        Integer id;
+        try{
+            id = Integer.parseInt(idParam);
+        }catch (NumberFormatException e) {
+
+            context.status(400);
+            return ;
+        }
+        if(message.getMessage_text().length() == 0 || 
+        message.getMessage_text().length() > 255){
+    
+            context.status(400);
+            return ;
+        }
+
+
+        if(messageService.getMessageById(id) == null){
+            context.status(400);
+            return ;
+        }
+
+        Message deletedMessage = messageService.updateMessageText(message, id);
+
+        if(deletedMessage == null){
+            context.status(400);
+        }else{
+            context.status(200).json(deletedMessage);
+        }
+    }
 }
 
 
