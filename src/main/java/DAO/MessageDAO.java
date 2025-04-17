@@ -9,30 +9,31 @@ import Model.Message;
 import Util.ConnectionUtil;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 /**
- * DAO class to interact with Message table
+ * DAO layer to interact with Message table
  */
 public class MessageDAO {
     
-    public boolean checkAccountExists(int id){
-        Connection connection = ConnectionUtil.getConnection();
-        try{
-            String sql = "select * from Account where account_id = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-            while(rs.next()){
-                return true;
-            }
-        }catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return false;
-    }
+    // public boolean checkAccountExists(int id){
+    //     Connection connection = ConnectionUtil.getConnection();
+    //     try{
+    //         String sql = "select * from Account where account_id = ?";
+    //         PreparedStatement preparedStatement = connection.prepareStatement(sql);
+    //         preparedStatement.setInt(1, id);
+    //         ResultSet rs = preparedStatement.executeQuery();
+    //         while(rs.next()){
+    //             return true;
+    //         }
+    //     }catch(SQLException e){
+    //         System.out.println(e.getMessage());
+    //     }
+    //     return false;
+    // }
 
-    public Message createMessage(Message message){
+    public Optional<Message> createMessage(Message message){
         Connection connection = ConnectionUtil.getConnection();
         try{
             String sql = "insert into Message (posted_by, message_text, time_posted_epoch) values (?, ?, ?)";
@@ -44,13 +45,13 @@ public class MessageDAO {
             ResultSet pkeyResultSet = preparedStatement.getGeneratedKeys();
             if(pkeyResultSet.next()){
                 int generated_account_id = (int) pkeyResultSet.getLong(1);
-                return new Message(generated_account_id, message.getPosted_by(), 
-                message.getMessage_text(), message.getTime_posted_epoch());
+                return Optional.of(new Message(generated_account_id, message.getPosted_by(), 
+                message.getMessage_text(), message.getTime_posted_epoch()));
             }
         }catch(SQLException e){
             System.out.println(e.getMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
     public List<Message> getAllMessages(){
@@ -129,28 +130,6 @@ public class MessageDAO {
         return null;
     }
 
-    public List<Message> getAllMessagesByAccountId(int id){
-        Connection connection = ConnectionUtil.getConnection();
-        List<Message> messages = new ArrayList<>();
-        try {
-            //Write SQL logic here
-            String sql = "select * from message where posted_by = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, id);
-            ResultSet rs = preparedStatement.executeQuery();
-            while(rs.next()){
-                Message msg = new Message(rs.getInt("message_id"),
-                        rs.getInt("posted_by"),
-                        rs.getString("message_text"),
-                        rs.getLong("time_posted_epoch"));
-                messages.add(msg);
-            }
-        }catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
-        return messages;
-    }
-
     public Message updateMessageText(Message message, int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -183,5 +162,27 @@ public class MessageDAO {
             System.out.println(e.getMessage());
         }
         return null;
+    }
+
+    public List<Message> getAllMessagesByAccountId(int id){
+        Connection connection = ConnectionUtil.getConnection();
+        List<Message> messages = new ArrayList<>();
+        try {
+            //Write SQL logic here
+            String sql = "select * from message where posted_by = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+            while(rs.next()){
+                Message msg = new Message(rs.getInt("message_id"),
+                        rs.getInt("posted_by"),
+                        rs.getString("message_text"),
+                        rs.getLong("time_posted_epoch"));
+                messages.add(msg);
+            }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return messages;
     }
 }

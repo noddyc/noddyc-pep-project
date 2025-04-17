@@ -2,6 +2,7 @@ package Controller;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -60,12 +61,11 @@ public class SocialMediaController {
     private void registerHandler(Context context) throws JsonMappingException,  JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
-        Account processedAccount = accountService.register(account);
-        if(processedAccount == null){
-            context.status(400);
-        }else{
-            context.status(200).json(processedAccount);
-        }
+        Optional<Account> processedAccount = accountService.register(account);
+        processedAccount.ifPresentOrElse(
+            registeredAccount -> context.status(200).json(registeredAccount),
+            () -> context.status(400)
+        );     
     }
 
      /**
@@ -75,12 +75,11 @@ public class SocialMediaController {
     private void loginHandler(Context context) throws JsonMappingException, JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
-        Account matchedAccount = accountService.logIn(account);
-        if(matchedAccount == null){
-            context.status(401);
-        }else{
-            context.status(200).json(matchedAccount);
-        }
+        Optional<Account> processedAccount = accountService.logIn(account);
+        processedAccount.ifPresentOrElse(
+            matchedAccount -> context.status(200).json(matchedAccount),
+            () -> context.status(401)
+        );     
     }
 
 
@@ -91,12 +90,11 @@ public class SocialMediaController {
     private void createMessageHandler(Context context) throws JsonMappingException, JsonProcessingException{
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(context.body(), Message.class);
-        Message createdMessage = messageService.createMessage(message);
-        if(createdMessage == null){
-            context.status(400);
-        }else{
-            context.status(200).json(createdMessage);
-        }
+        Optional<Message> processedMessage = messageService.createMessage(message);
+        processedMessage.ifPresentOrElse(
+            createdMessage -> context.status(200).json(createdMessage),
+            () -> context.status(400)
+        );     
     }
 
     /**
@@ -217,27 +215,29 @@ public class SocialMediaController {
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      */
     public void getAllMessagesByAccountIdHandler(Context context){
-        List<Message> messages = new ArrayList<>();
         String idParam = context.pathParam("account_id");
-        Integer id;
-        try{
-            id = Integer.parseInt(idParam);
-        }catch (NumberFormatException e) {
-            context.status(200);
-            return ;
-        }
+        List<Message> messages = messageService.getAllMessagesByAccountId(idParam);
+        context.status(200).json(messages);
+        // List<Message> messages = new ArrayList<>();
+        // Integer id;
+        // try{
+        //     id = Integer.parseInt(idParam);
+        // }catch (NumberFormatException e) {
+        //     context.status(200);
+        //     return ;
+        // }
 
-        if(!messageService.checkAccountExists(id)){
-            context.status(200).json(messages);
-            return;
-        }
+        // if(!messageService.checkAccountExists(id)){
+        //     context.status(200).json(messages);
+        //     return;
+        // }
 
-        messages = messageService.getAllMessagesByAccountId(id);
-        if(messages.size() == 0){
-            context.status(200).json(messages);
-        }else{
-            context.status(200).json(messages);
-        }
+        // messages = messageService.getAllMessagesByAccountId(id);
+        // if(messages.size() == 0){
+        //     context.status(200).json(messages);
+        // }else{
+        //     context.status(200).json(messages);
+        // }
     }
 }
 
