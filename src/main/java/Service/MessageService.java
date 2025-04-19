@@ -32,7 +32,9 @@ public class MessageService {
      * @return new message
      */
     public Optional<Message> createMessage(Message message){
-        if(message.getMessage_text().length() == 0 || message.getMessage_text().length() > 255){
+        if(message.getMessage_text() == null ||
+            message.getMessage_text().isEmpty() || 
+            message.getMessage_text().length() > 255){
             return Optional.empty();
         }
         boolean accountExists = accountDAO.checkAccountExists(message.getPosted_by());
@@ -104,7 +106,8 @@ public class MessageService {
         }catch (NumberFormatException e) {
             return Optional.empty();
         }
-        if(message.getMessage_text().length() == 0 || 
+        if(message.getMessage_text() == null || 
+        message.getMessage_text().isEmpty() || 
         message.getMessage_text().length() > 255){
             return Optional.empty();
         }

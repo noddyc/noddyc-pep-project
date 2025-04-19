@@ -24,7 +24,8 @@ public class AccountService {
      * @return registered account
      */
     public Optional<Account> register(Account account){
-        if(account.getUsername().length() == 0
+        if(account.getUsername() == null || 
+            account.getUsername().isEmpty() 
         || account.getPassword().length() < 4){
             return Optional.empty();
         }else{
